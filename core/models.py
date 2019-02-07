@@ -32,7 +32,12 @@ class Deploy(models.Model):
     image_tag = models.CharField(max_length=256, blank=True, null=True)
     owner = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     source = models.CharField(max_length=1, blank=False, default='d', choices=SOURCE_CHOICES)
-    script = models.TextField(null=False)
+    params = JSONField(default=dict)
 
     def __str__(self):
         return f"{self.url_prefix} {self.image_name}:{self.image_tag}"
+
+
+class Container(models.Model):
+    id = models.CharField(max_length=256, primary_key=True)
+    deploy = models.ForeignKey(Deploy,  null=False, blank=False, on_delete=models.CASCADE)

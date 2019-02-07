@@ -17,13 +17,13 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
 from core import views
+from django.views.decorators.csrf import csrf_exempt
 
 web_hook = views.WebHookViewSet.as_view({
-    'put': 'get',
-    'get': 'get'
+    'post': 'get',
 })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^webhook/(?P<prefix>\s*([a-f0-9\\-]*)\s*)/$', web_hook, name='external-check-detail'),
+    url(r'^webhook/(?P<prefix>\s*([a-f0-9\\-]*)\s*)/$', csrf_exempt(web_hook), name='external-check-detail'),
 ]
