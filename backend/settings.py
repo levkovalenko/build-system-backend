@@ -117,6 +117,12 @@ AUTH_PASSWORD_VALIDATORS = [
 BROKER_URL = None
 BASE_URL = None
 
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_ENABLE_UTC = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 

@@ -53,7 +53,7 @@ class Deploy(models.Model):
 class Image(models.Model):
     image_name = models.CharField(max_length=256, blank=True, null=True)
     image_tag = models.CharField(max_length=256, blank=True, null=True)
-    deploy = models.ForeignKey(Deploy,  null=True, on_delete=models.CASCADE)
+    deploy = models.OneToOneField(Deploy,  null=True, on_delete=models.CASCADE)
 
     def get_name(self):
         return f'{self.deploy.owner.docker_username}/{self.image_name}:{self.image_tag}'
@@ -61,6 +61,6 @@ class Image(models.Model):
 
 class Container(models.Model):
     id = models.CharField(max_length=256, primary_key=True)
-    image = models.ForeignKey(Image,  null=True, on_delete=models.CASCADE)
+    image = models.OneToOneField(Image,  null=True, on_delete=models.SET_NULL)
 
 

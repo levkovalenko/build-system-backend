@@ -1,7 +1,10 @@
 from celery.signals import worker_ready
 from django.conf import settings
 from django.db.models import Q
+from core.models import *
 import celery
+import docker
+
 
 
 def task_prerun(fn, prerun):
@@ -26,7 +29,7 @@ class BaseTask(celery.Task, metaclass=MetaBaseTask):
     default_retry_delay = 5
 
     def __init__(self):
-        pass
+        self.client = docker.from_env()
 
     def on_prerun(self, *args, **kwargs):
         pass
@@ -36,6 +39,34 @@ class BaseTask(celery.Task, metaclass=MetaBaseTask):
 
     def on_success(self, retval, task_id, args, kwargs):
         pass
+
+
+class DockerDeploy(BaseTask):
+    def run(self, deploy_uid):
+        deploy = Deploy.objects.get(url_prefix=deploy_uid)
+        owner = deploy.owner
+        params = deploy.params
+        image_model = deploy.image
+        image_name = image_model.get_name()
+        try:
+            image = self.client.images.get(image_name)
+        except docker.errors.ImageNotFound:
+            image = None
+        if get_or_none(Container, image=image_model) is not None:
+            container_model = get_or_none(Container, image=image_model)
+            container = self.client.containers.get(container_model.id)
+            container.kill()
+            container.remove(force=True)
+            container_model.delete()
+        if image is not None:
+            image.reload()
+        container = self.client.containers.run(
+            image_model.get_name(),
+            ports=params.get_ports(),
+            volumes=params.get_paths(),
+            detach=True,
+        )
+        Container.objects.create(id=container.id, image=image_model)
 
 
 @worker_ready.connect()
