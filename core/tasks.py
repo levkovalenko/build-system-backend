@@ -4,6 +4,7 @@ from django.db.models import Q
 from core.models import *
 import celery
 import docker
+from backend.celery import app
 
 
 def task_prerun(fn, prerun):
@@ -42,6 +43,7 @@ class BaseTask(celery.Task, metaclass=MetaBaseTask):
 
 class DockerDeploy(BaseTask):
     def run(self, deploy_uid):
+        print(deploy_uid)
         deploy = Deploy.objects.get(url_prefix=deploy_uid)
         owner = deploy.owner
         params = deploy.params
@@ -58,7 +60,7 @@ class DockerDeploy(BaseTask):
             container.remove(force=True)
             container_model.delete()
         if image is not None:
-            image.reload()
+            self.client.images.remove(image=image_name, force=True)
         container = self.client.containers.run(
             image_model.get_name(),
             ports=params.get_ports(),
@@ -66,6 +68,9 @@ class DockerDeploy(BaseTask):
             detach=True,
         )
         Container.objects.create(id=container.id, image=image_model)
+
+
+app.tasks.register(DockerDeploy())
 
 
 @worker_ready.connect()
