@@ -3,3 +3,4 @@ local_settings.py
 .idea/
 venv/
 celerybeat-schedule
+.pytest_cache
