@@ -10,5 +10,5 @@ class WebHookViewSet(viewsets.ViewSet):
         print(deploy)
         if deploy is None:
             return HttpResponse('Not OK')
-        DockerDeploy().run(deploy_uid=prefix)
+        DockerDeploy().apply_async(args=(prefix,))
         return HttpResponse('OK')

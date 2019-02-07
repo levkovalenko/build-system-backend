@@ -6,7 +6,6 @@ import celery
 import docker
 
 
-
 def task_prerun(fn, prerun):
     def wrapped(*args, **kwargs):
         prerun(*args, **kwargs)
