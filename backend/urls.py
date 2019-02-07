@@ -15,7 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url, include
+from core import views
+
+web_hook = views.WebHookViewSet.as_view({
+    'put': 'get',
+    'get': 'get'
+})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^webhook/(?P<prefix>\s*([a-f0-9\\-]*)\s*)/$', web_hook, name='external-check-detail'),
 ]

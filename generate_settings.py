@@ -26,5 +26,7 @@ DATABASES = {{
 
 BROKER_URL = "{get_var("BROKER_URL")}"
 
+BASE_URL = "{get_var("BASE_URL")}"
+
 ALLOWED_HOSTS = ['*']
 """)
